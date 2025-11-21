@@ -72,7 +72,7 @@ module rbac::rbac{
             let acc = vector::borrow(recovery_accounts, i);
 
             if (acc.addr == userAddr) {
-                vector::remove(recovery_accounts, i); //se mettevo l'oggetto senza drop non mi faceva la remove, why???
+                vector::remove(recovery_accounts, i);
                 break
             };
             i = i+1;
@@ -105,7 +105,7 @@ module rbac::rbac{
             i = i + 1;
         };
 
-        //Moltiplico il valore per il clock di sistema quindi non mi serve nieeeeente di ciclo. Dato che ho il trust level mi basta moltiplicarlo per il clock, tanto più sono grandi e più il clock (timer) sarà alto, allora posso fare singola moltiplicazione per ricavare il timer 
+        //Moltiplico il valore per il clock di sistema quindi nieeeeente ciclo. Dato che ho il trust level mi basta moltiplicarlo per il clock, tanto più sono grandi e più il clock (timer) sarà alto, allora posso fare singola moltiplicazione per ricavare il timer 
         // 1 = 100 sec da circa 1 minuto
         // 2 = 200 sec
         // 3 = 300 sec
