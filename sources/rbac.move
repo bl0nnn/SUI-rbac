@@ -4,12 +4,13 @@ module rbac::rbac{
     use sui::clock::Clock;
 
     const Enot_admin: u64 = 1;
-    const Erecovery_waiting: u64 = 2;
-    const Enot_recovery_acc: u64 = 3;
-    const Ealready_pending: u64 = 4;
-    const Enot_pending: u64 = 5;
-    const Enot_trust_level: u64 = 6;
-    const Epending: u64 = 7;
+    const Enot_recovery_acc: u64 = 2;
+    const Enot_pending: u64 = 3;
+    const Enot_trust_level: u64 = 4;
+    const Epending: u64 = 5;
+    const Etoo_much_levels: u64 = 6;
+    const Eempty_vector: u64 = 7;
+    const Etimesnotup: u64 = 8;
     
     public struct Trust_levels has key {
         id: UID,
@@ -51,7 +52,7 @@ module rbac::rbac{
 
     public fun add_user(userAddr: address, trust_lev: u8, ctx: &mut TxContext, control: &mut Control, trust: &Trust_levels) {
         assert!(control.admin == ctx.sender(), Enot_admin);
-        assert!(control.pending == false, Erecovery_waiting);
+        assert!(control.pending == false, Epending);
         assert!(is_trust_level(&trust.levels, trust_lev ), Enot_trust_level);
 
         let recovery_accounts = &mut control.recovery_accounts;
@@ -62,7 +63,8 @@ module rbac::rbac{
     
     public fun remove_user(userAddr: address, ctx: &mut TxContext, control: &mut Control) {
         assert!(control.admin == ctx.sender(), Enot_admin);
-        assert!(control.pending == false, Erecovery_waiting);
+        assert!(control.pending == false, Epending);
+        assert!(!vector::is_empty(&control.recovery_accounts), Eempty_vector);
 
         let recovery_accounts = &mut control.recovery_accounts;
         let len = vector::length(recovery_accounts);
@@ -82,7 +84,7 @@ module rbac::rbac{
     public fun init_recovery(ctx: &mut TxContext, control: &mut Control, addr: address, clock: &Clock){
         assert!(contains_recovery_user(&control.recovery_accounts, ctx.sender()), Enot_recovery_acc);
         assert!(contains_recovery_user(&control.recovery_accounts, addr), Enot_recovery_acc);
-        assert!(control.pending == false, Ealready_pending);
+        assert!(control.pending == false, Epending);
 
         control.pending = true; 
         control.new_admin = addr;
@@ -119,7 +121,7 @@ module rbac::rbac{
 
     public fun finalize_recovery(ctx: &mut TxContext, control: &mut Control, clock: &Clock){
         assert!(contains_recovery_user(&control.recovery_accounts, ctx.sender()), Enot_recovery_acc);
-        assert!(control.timer <= clock.timestamp_ms(), Epending);
+        assert!(control.timer <= clock.timestamp_ms(), Etimesnotup);
         assert!(control.pending == true, Enot_pending);
 
         control.admin = control.new_admin;
@@ -160,13 +162,9 @@ module rbac::rbac{
     public fun set_default_trust_levels(ctx: &mut TxContext, control: &Control, trust: &mut Trust_levels, new_levels: vector<u8>){
     
         assert!(control.admin == ctx.sender(), Enot_admin);
+        assert!(vector::length(&new_levels) <= 5, Etoo_much_levels);
 
-        let mut i = 0;
-        let len = vector::length(&trust.levels);
-        while (i < len) {
-            vector::remove(&mut trust.levels, i);
-            i = i + 1;
-        };
+        trust.levels = vector[];
 
         let mut j = 0;
         let new_len = vector::length(&new_levels);
@@ -179,7 +177,7 @@ module rbac::rbac{
 
     //funzioni interne del contratto, i cosiddetti helpers
 
-    public fun contains_recovery_user(accounts: &vector<Recovery_account>, addr: address): bool{
+    fun contains_recovery_user(accounts: &vector<Recovery_account>, addr: address): bool{
         
         let len = vector::length(accounts);
         let mut i = 0;
@@ -211,9 +209,45 @@ module rbac::rbac{
 
     }
     
+    // helpers per i test
     #[test_only]
-    public fun test_create(ctx: &mut TxContext) {
-        create(ctx)
+    public fun control_admin(control: &Control): address {
+        control.admin
+    }
+
+    #[test_only]
+    public fun control_recovery_accounts(control: &Control): &vector<Recovery_account> {
+        &control.recovery_accounts
+    }
+
+    #[test_only]
+    public fun rec_addr(recovery_acc: &Recovery_account): address {
+        recovery_acc.addr
+    }
+
+    #[test_only]
+    public fun rec_trust_level(recovery_acc: &Recovery_account): u8 {
+        recovery_acc.trust_level
+    }
+
+    #[test_only]
+    public fun trust_levels(trust_level: &Trust_levels): &vector<u8> {
+        &trust_level.levels
+    }
+
+    #[test_only]
+    public fun control_pending(control: &Control): bool{
+        control.pending
+    }
+
+    #[test_only]
+    public fun control_timer(control: &Control): u64{
+        control.timer
+    }
+
+    #[test_only]
+    public fun control_new_admin(control: &Control): address{
+        control.new_admin
     }
 
 }
