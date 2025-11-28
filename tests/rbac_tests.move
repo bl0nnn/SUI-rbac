@@ -18,7 +18,7 @@ fun call_add_user(ts: &mut Scenario, sender: address, user: address, trust: u8){
     let mut control: rbac::Control = ts.take_shared();
     let trust_levels: rbac::Trust_levels = ts.take_shared();
 
-    rbac::add_user(user, trust, ts.ctx(), &mut control, &trust_levels);
+    rbac::add_user(user, trust, &mut control, &trust_levels, ts.ctx());
     ts::return_shared(control);
     ts::return_shared(trust_levels);
 }

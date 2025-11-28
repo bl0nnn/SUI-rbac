@@ -1,0 +1,32 @@
+{
+  "name": "rbac",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bl0nnn/SUI-rbac.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bl0nnn/SUI-rbac/issues"
+  },
+  "homepage": "https://github.com/bl0nnn/SUI-rbac#readme",
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@mysten/sui": "^1.45.0",
+    "@mysten/sui.js": "^0.54.1",
+    "ts-node": "^10.9.2"
+  }
+}

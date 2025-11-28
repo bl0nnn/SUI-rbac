@@ -2,6 +2,7 @@
 module rbac::rbac{
 
     use sui::clock::Clock;
+    use sui::event;
 
     const Enot_admin: u64 = 1;
     const Enot_recovery_acc: u64 = 2;
@@ -33,24 +34,48 @@ module rbac::rbac{
 
     }
 
+    public struct ControlCreated has copy, drop {
+    control_id: address,
+    admin: address,
+    }
+
+    public struct TrustLevelsCreated has copy, drop {
+        trust_levels_id: address,
+        levels: vector<u8>,
+    }
+
     public fun create(ctx: &mut TxContext) {
-        transfer::share_object(Control {
+        let control = Control {
             id: object::new(ctx),
             admin: ctx.sender(),
             recovery_accounts: vector[],
             pending: false,
             new_admin: @0x0,
             timer: 0,
-        });
+        };
 
-        transfer::share_object( Trust_levels{
+
+        let trust_levs = Trust_levels{
             id: object::new(ctx),
             levels: vector[1,2,3]
 
+        };
+
+        event::emit(ControlCreated {
+            control_id: object::uid_to_address(&control.id),
+            admin: control.admin,
         });
+
+        event::emit( TrustLevelsCreated{
+            trust_levels_id: object::uid_to_address(&trust_levs.id),
+            levels: trust_levs.levels,
+        });
+
+        transfer::share_object(control);
+        transfer::share_object(trust_levs);
     }
 
-    public fun add_user(userAddr: address, trust_lev: u8, ctx: &mut TxContext, control: &mut Control, trust: &Trust_levels) {
+    public fun add_user(userAddr: address, trust_lev: u8, control: &mut Control, trust: &Trust_levels, ctx: &mut TxContext) {
         assert!(control.admin == ctx.sender(), Enot_admin);
         assert!(control.pending == false, Epending);
         assert!(is_trust_level(&trust.levels, trust_lev ), Enot_trust_level);
@@ -162,7 +187,7 @@ module rbac::rbac{
     public fun set_default_trust_levels(ctx: &mut TxContext, control: &Control, trust: &mut Trust_levels, new_levels: vector<u8>){
     
         assert!(control.admin == ctx.sender(), Enot_admin);
-        assert!(vector::length(&new_levels) <= 5, Etoo_much_levels);
+        assert!(vector::length(&new_levels) <= 5, Etoo_much_levels);    //per ora ne metto 5 poi vedo cosa fare
 
         trust.levels = vector[];
 
