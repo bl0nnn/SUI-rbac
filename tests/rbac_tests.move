@@ -28,7 +28,7 @@ fun call_remove_user(ts: &mut Scenario, sender: address, user: address){
 
     let mut control: rbac::Control = ts.take_shared();
 
-    rbac::remove_user(user, ts.ctx(), &mut control);
+    rbac::remove_user(user, &mut control, ts.ctx());
     ts::return_shared(control);
 
 }
@@ -40,7 +40,7 @@ fun call_init_recovery(ts: &mut Scenario, sender: address, user: address){
     let clock: sui::clock::Clock = ts.take_shared();
 
 
-    rbac::init_recovery(ts.ctx(), &mut control, user, &clock);
+    rbac::init_recovery(&mut control, user, &clock, ts.ctx());
 
     ts::return_shared(control);
     ts::return_shared(clock);
@@ -54,7 +54,7 @@ fun call_finalize_recovery(ts: &mut Scenario, sender: address){
     let mut control: rbac::Control = ts.take_shared();
     let clock: sui::clock::Clock = ts.take_shared();
 
-    rbac::finalize_recovery(ts.ctx(), &mut control, &clock);
+    rbac::finalize_recovery(&mut control, &clock, ts.ctx());
 
     ts::return_shared(control);
     ts::return_shared(clock);
@@ -65,7 +65,7 @@ fun call_cancel_recovery(ts: &mut Scenario, sender: address){
 
     let mut control: rbac::Control = ts.take_shared();
 
-    rbac::cancel_recovery(ts.ctx(), &mut control);
+    rbac::cancel_recovery(&mut control, ts.ctx());
 
     ts::return_shared(control);
 
@@ -78,7 +78,7 @@ fun call_update_trust(ts: &mut Scenario, sender: address, addr: address, new_tru
     let mut control: rbac::Control = ts.take_shared();
     let mut trust_levels: rbac::Trust_levels = ts.take_shared();
 
-    rbac::update_trust(ts.ctx(), new_trust_level, &mut control, addr, &mut trust_levels);
+    rbac::update_trust(new_trust_level, &mut control, addr, &mut trust_levels, ts.ctx());
 
     ts::return_shared(control);
     ts::return_shared(trust_levels);
@@ -90,7 +90,7 @@ fun call_set_default_trust_levels(ts: &mut Scenario, new_levels: vector<u8>, sen
     let mut trust_levels: rbac::Trust_levels = ts.take_shared();
     let control: rbac::Control = ts.take_shared();
 
-    rbac::set_default_trust_levels(ts.ctx(), &control, &mut trust_levels, new_levels);
+    rbac::set_default_trust_levels(&control, &mut trust_levels, new_levels, ts.ctx());
 
     ts::return_shared(control);
     ts::return_shared(trust_levels);

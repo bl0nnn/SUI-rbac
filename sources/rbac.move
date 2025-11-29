@@ -86,7 +86,7 @@ module rbac::rbac{
 
     }
     
-    public fun remove_user(userAddr: address, ctx: &mut TxContext, control: &mut Control) {
+    public fun remove_user(userAddr: address, control: &mut Control, ctx: &mut TxContext) {
         assert!(control.admin == ctx.sender(), Enot_admin);
         assert!(control.pending == false, Epending);
         assert!(!vector::is_empty(&control.recovery_accounts), Eempty_vector);
@@ -106,7 +106,7 @@ module rbac::rbac{
         };
     }
 
-    public fun init_recovery(ctx: &mut TxContext, control: &mut Control, addr: address, clock: &Clock){
+    public fun init_recovery(control: &mut Control, addr: address, clock: &Clock, ctx: &mut TxContext){
         assert!(contains_recovery_user(&control.recovery_accounts, ctx.sender()), Enot_recovery_acc);
         assert!(contains_recovery_user(&control.recovery_accounts, addr), Enot_recovery_acc);
         assert!(control.pending == false, Epending);
@@ -144,7 +144,7 @@ module rbac::rbac{
         control.timer = time + (account_trust_level as u64) * 100000; 
     }
 
-    public fun finalize_recovery(ctx: &mut TxContext, control: &mut Control, clock: &Clock){
+    public fun finalize_recovery(control: &mut Control, clock: &Clock, ctx: &mut TxContext){
         assert!(contains_recovery_user(&control.recovery_accounts, ctx.sender()), Enot_recovery_acc);
         assert!(control.timer <= clock.timestamp_ms(), Etimesnotup);
         assert!(control.pending == true, Enot_pending);
@@ -155,7 +155,7 @@ module rbac::rbac{
 
     }
 
-    public fun cancel_recovery(ctx: &mut TxContext, control: &mut Control) {
+    public fun cancel_recovery(control: &mut Control, ctx: &mut TxContext) {
         assert!(control.admin == ctx.sender(), Enot_admin);
         assert!(control.pending == true, Enot_pending);
 
@@ -166,7 +166,7 @@ module rbac::rbac{
 
     }
     //devo prendere un utente a caso tra i recovery account, verifico che effettivamente sia un account di recovery con un assert iniziale e poi modifico il suo trust level
-    public fun update_trust(ctx: &mut TxContext, new_trust_level: u8, control: &mut Control, addr: address, trust: &mut Trust_levels) {
+    public fun update_trust(new_trust_level: u8, control: &mut Control, addr: address, trust: &mut Trust_levels, ctx: &mut TxContext) {
         assert!(control.admin == ctx.sender(), Enot_admin);
         assert!(contains_recovery_user(&control.recovery_accounts, addr), Enot_recovery_acc);
         assert!(is_trust_level(&trust.levels, new_trust_level ), Enot_trust_level);
@@ -184,7 +184,7 @@ module rbac::rbac{
         };
     }
 
-    public fun set_default_trust_levels(ctx: &mut TxContext, control: &Control, trust: &mut Trust_levels, new_levels: vector<u8>){
+    public fun set_default_trust_levels(control: &Control, trust: &mut Trust_levels, new_levels: vector<u8>, ctx: &mut TxContext){
     
         assert!(control.admin == ctx.sender(), Enot_admin);
         assert!(vector::length(&new_levels) <= 5, Etoo_much_levels);    //per ora ne metto 5 poi vedo cosa fare
