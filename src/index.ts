@@ -454,18 +454,18 @@ async function main() {
 
   const client = new SuiClient({ url: rpcUrl });
 
-  const package_id = '0x8b367cff5b3c869f49ce6a8fcb9ee71d410090865761971b6cea2bd8acbd7d28';
+  const package_id = 'smart_contract_id';
 
-  const keypairMiguel = Ed25519Keypair.fromSecretKey("suiprivkey1qq9gpm6x4mzu2ygcu7eyr9eg3su0y2fw73shjumvt4t0ntdahq28g639qn4"); //0xe7ffc0074b370c9860fb0b1c26e7086fab26d072712495435efcf0a05c7f5046
-  const keypairBob = Ed25519Keypair.fromSecretKey("suiprivkey1qrx5g5p22yefdzl70lrk340uptxvfun875xrygtn46qf8hq6rlr3jazz7dh");  //0x6947862d227fb111caa6947cb5c4bec71001133735d8f3d06ed2cec52029a6b3
-  const keypairAlice = Ed25519Keypair.fromSecretKey("suiprivkey1qptcfvlkr953f4dfxnstf20krphmq7c0uwxw5yq43zvau7pfm9rkwsxzk5y");  //0xe4ffc8c4589ac9bc388c6996dd8d13aefef5fee4d7b00fa4ed4b79d5a07c2f91
-  const keypairObsidian = Ed25519Keypair.fromSecretKey("suiprivkey1qph2na0zedxtcffzzzt7tvchvpegtnj5fp0jq4h3ahvfn758at0uqvmwzp5"); //0x332e9b4c1a7f0dcc45165c278813cf0369a5f6345b092cb3fcdf9b24fbea350d 
+  const keypairBl0n = Ed25519Keypair.fromSecretKey("test_private_key"); //0xe7ffc0074b370c9860fb0b1c26e7086fab26d072712495435efcf0a05c7f5046
+  const keypairBob = Ed25519Keypair.fromSecretKey("test_private_key");  //0x6947862d227fb111caa6947cb5c4bec71001133735d8f3d06ed2cec52029a6b3
+  const keypairAlice = Ed25519Keypair.fromSecretKey("test_private_key");  //0xe4ffc8c4589ac9bc388c6996dd8d13aefef5fee4d7b00fa4ed4b79d5a07c2f91
+  const keypairObsidian = Ed25519Keypair.fromSecretKey("test_private_key"); //0x332e9b4c1a7f0dcc45165c278813cf0369a5f6345b092cb3fcdf9b24fbea350d 
 
-  let keypairAdmin = keypairMiguel;
+  let keypairAdmin = keypairBl0n;
 
   await requestSuiFromFaucetV2({
 	  host: getFaucetHost('localnet'),
-	  recipient: keypairMiguel.toSuiAddress(),
+	  recipient: keypairBl0n.toSuiAddress(),
   });
 
   await requestSuiFromFaucetV2({
@@ -517,7 +517,7 @@ async function main() {
         case '4':
           let new_admin_addr = await call_finalize_recovery(client, package_id, keypairBob, objects_addresses);
           if(new_admin_addr == "0xe7ffc0074b370c9860fb0b1c26e7086fab26d072712495435efcf0a05c7f5046"){
-            keypairAdmin = keypairMiguel;
+            keypairAdmin = keypairBl0n;
           }else if (new_admin_addr == "0x6947862d227fb111caa6947cb5c4bec71001133735d8f3d06ed2cec52029a6b3"){
             keypairAdmin = keypairBob;
           }else if (new_admin_addr == "0xe4ffc8c4589ac9bc388c6996dd8d13aefef5fee4d7b00fa4ed4b79d5a07c2f91"){
